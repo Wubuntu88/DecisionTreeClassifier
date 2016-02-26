@@ -1,0 +1,11 @@
+
+cs     no     no      gpa>3    large   years>5 
+other  java   no      gpa<3    large   years>5 
+cs     no     c/c++   gpa>3    large   years<5 
+other  no     c/c++   gpa>3    small   years>5 
+cs     java   no      gpa<3    large   years>5 
+other  no     c/c++   gpa<3    small   years>5
+cs     java   c/c++   gpa<3    small   years<5  
+other  java   c/c++   gpa>3    small   years>5 
+cs     java   no      gpa>3    small   years>5 
+other  java   c/c++   gpa<3    large   years>5 
