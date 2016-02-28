@@ -1,4 +1,6 @@
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -76,6 +78,15 @@ public class DecisionTreeClassifier {
 		}
 		
 		dtc.buildTree();
+		/*
+		ArrayList<Record> records = null;
+		try {
+			records = dtc.loadTestRecordsFromFile("test2");
+			dtc.classifyTestRecordsAndWriteToFile("output.txt", records);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		System.out.println(dtc);
 		double trainingError = dtc.computeTrainingError();
 		System.out.println("trainingError: " + trainingError);
@@ -83,6 +94,7 @@ public class DecisionTreeClassifier {
 		System.out.println("one out error: " + oneOutError);
 		double randomSamplingError = dtc.randomSamplingClassificationError();
 		System.out.println("random sampling error: " + randomSamplingError);
+		*/
 	}
 	
 	private int numberOfRecords;
@@ -111,11 +123,16 @@ public class DecisionTreeClassifier {
 	}
 	
 	public TreeNode build(TreeSet<Integer> indicesOfRecordsLeft, TreeSet<Integer> remainingColIndices){
+		System.out.println("-$$-Tree Building Iteration-$$-");
+		System.out.println("indicesOfRecordsLeft: " + indicesOfRecordsLeft);
+		System.out.println("remainingColumnIndices: " + remainingColIndices);
 		if(areRecordsSameClass(indicesOfRecordsLeft)){
 			String labelName = records.get(indicesOfRecordsLeft.first()).label;
+			System.out.println("--Leaf node created-- Label: " + labelName);
 			return new TreeNode(TreeNode.LEAF, labelName, -1,null, null);
-		}else if(remainingColIndices.size() == 0 || indicesOfRecordsLeft.size() < 4){
+		}else if(remainingColIndices.size() == 0 || indicesOfRecordsLeft.size() < 6){
 			String majorityLabel = majorityLabel(indicesOfRecordsLeft);
+			System.out.println("--Leaf node created-- Label: " + majorityLabel);
 			return new TreeNode(TreeNode.LEAF, majorityLabel, -1, null, null);
 		}else{//the real tree building
 			int bestColumnToSplitRecords = bestColIndexToSplitRecords(indicesOfRecordsLeft, remainingColIndices);
@@ -127,6 +144,7 @@ public class DecisionTreeClassifier {
 							RIGHT_RECORDS_BINARY_VALUE, bestColumnToSplitRecords);
 			if(leftIndices.size() == 0 || rightIndices.size() == 0){
 				String label = majorityLabel(indicesOfRecordsLeft);
+				System.out.println("--Leaf node created-- Label: " + label);
 				return new TreeNode(TreeNode.LEAF, label, -1, null, null);
 			}else{//building left and right nodes
 				TreeSet<Integer> leftRemainingColIndices = new TreeSet<>(remainingColIndices);
@@ -134,6 +152,10 @@ public class DecisionTreeClassifier {
 				
 				leftRemainingColIndices.remove(bestColumnToSplitRecords);
 				rightRemainingColIndices.remove(bestColumnToSplitRecords);
+				
+				System.out.println("**Internal node created** Best condition: " + bestColumnToSplitRecords);
+				System.out.println("left node indices passed to subtree: " + leftIndices);
+				System.out.println("right node indices passed to subtree: " + rightIndices);
 				
 				TreeNode left = build(leftIndices, leftRemainingColIndices);
 				TreeNode right = build(rightIndices, rightRemainingColIndices);
@@ -235,6 +257,23 @@ public class DecisionTreeClassifier {
 			testRecords.add(recordToAdd);
 		}
 		return testRecords;
+	}
+	
+	public void classifyTestRecordsAndWriteToFile(String fileName, ArrayList<Record> theRecords){
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(fileName);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		StringBuffer sBuffer = new StringBuffer("");
+		for(Record theRecord: theRecords){
+			String label = classify(theRecord);
+			sBuffer.append(label + "\n");
+		}
+		sBuffer.delete(sBuffer.length() - 1, sBuffer.length());
+		pw.write(sBuffer.toString());
+		pw.close();
 	}
 	
 	private Integer bestColIndexToSplitRecords(Set<Integer> indicesOfRecords, Set<Integer> remainingColIndices){
@@ -350,11 +389,11 @@ public class DecisionTreeClassifier {
 	}
 	
 	public double randomSamplingClassificationError(){
-		//25% of the records will be used as test records; 75% for training.
+		//15% of the records will be used as test records; 85% for training.
 		Random rng = new Random();
-		int numberOfTestRecords = (int)(records.size() * 0.25);
+		int numberOfTestRecords = (int)(records.size() * 0.15);
 		int numberOfMisclassifiedRecords = 0;
-		int ITERATIONS = 10000;
+		int ITERATIONS = 300;
 		for(int iteration = 0; iteration < ITERATIONS; iteration++){
 			ArrayList<Record> testRecords = new ArrayList<>();
 			for(int i = 0; i < numberOfTestRecords; i++){
@@ -380,14 +419,14 @@ public class DecisionTreeClassifier {
 		for(int i = 0; i < records.size(); i++){
 			Record recordToClassify = records.remove(i);
 			buildTree();
+			System.out.println(treeString(root, 0));
 			String label = classify(recordToClassify);
-			System.out.println("classified label: " + label + ", record's label: " + recordToClassify.label);
+			//System.out.println("classified label: " + label + ", record's label: " + recordToClassify.label);
 			if(label.equals(recordToClassify.label) == false){
 				numberOfMisclassifiedRecords++;
 			}
 			records.add(i, recordToClassify);
 		}
-		System.out.println("size: " + records.size());
 		return (double)numberOfMisclassifiedRecords / records.size();
 	}
 	
