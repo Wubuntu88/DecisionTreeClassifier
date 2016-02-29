@@ -69,32 +69,81 @@ public class DecisionTreeClassifier {
 	 * MAIN METHOD
 	 **************************************************************/
 	public static void main(String[] args) {
-		
+		/*
+		 * **PART 1********************************************
+		 * In this part I run the decision tree algorithm on the train1 and test1 data
+		 */
+		String trainFileName1 = "train1";
+		String testFileName1 = "test1";
+		String outputFile1 = "output1";
 		DecisionTreeClassifier dtc = new DecisionTreeClassifier();
 		try {
-			dtc.loadTrainingData("train2_use");
+			dtc.loadTrainingData(trainFileName1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		/* C: Trace of the tree building */
 		dtc.buildTree();
-		/*
-		ArrayList<Record> records = null;
+		/* A:  */
+		//what am I supposed to print...?
+		/* B: prints the tree structure (albeit sideways) */
+		System.out.println(dtc);
+		/* D: classify test records and write them to a file */
+		ArrayList<Record> testRecords1 = null;
 		try {
-			records = dtc.loadTestRecordsFromFile("test2");
-			dtc.classifyTestRecordsAndWriteToFile("output.txt", records);
+			testRecords1 = dtc.loadTestRecordsFromFile(testFileName1);
+			dtc.classifyTestRecordsAndWriteToFile(outputFile1, testRecords1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		System.out.println(dtc);
+		/* E: compute and print training error */
 		double trainingError = dtc.computeTrainingError();
 		System.out.println("trainingError: " + trainingError);
+		
+		/* F: compute validation random sampling and one out*/
 		double oneOutError = dtc.oneOutValidationError();
 		System.out.println("one out error: " + oneOutError);
 		double randomSamplingError = dtc.randomSamplingClassificationError();
 		System.out.println("random sampling error: " + randomSamplingError);
-		*/
+		
+		/*the rest of part one */
+		
+		/* 
+		 * Part 2: runing the decision tree algorithm on train 2 and test 2 ****
+		 * #3
+		 * */
+		dtc = new DecisionTreeClassifier();// start over and make a new decision tree
+		String trainFileName2 = "train2";
+		String testFileName2 = "test2";
+		String outputFile2 = "output2";
+		dtc = new DecisionTreeClassifier();
+		try {
+			dtc.loadTrainingData(trainFileName2);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		dtc.buildTree();
+		/* A: classification of records in test file */
+		ArrayList<Record> testRecords2 = null;
+		try {
+			testRecords2 = dtc.loadTestRecordsFromFile(testFileName2);
+			dtc.classifyTestRecordsAndWriteToFile(outputFile2, testRecords2);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		/* B: compute and print training error */
+		double trainingError2 = dtc.computeTrainingError();
+		System.out.println("trainingError: " + trainingError2);
+		
+		/* C: compute validation random sampling and one out*/
+		double oneOutError2 = dtc.oneOutValidationError();
+		System.out.println("one out error: " + oneOutError2);
+		
+		/* D: tree picture */
+		System.out.println(dtc.toString());
+		
 	}
 	
 	private int numberOfRecords;
@@ -119,9 +168,16 @@ public class DecisionTreeClassifier {
 		for(int i = 0; i < numberOfAttributes; i++){
 			remainingColIndices.add(i);
 		}
+		System.out.println("^^Tree Building^^");
 		root = build(indicesOfRecords, remainingColIndices);
 	}
 	
+	/**
+	 * Builds a decision tree recursively.  Ultimately returns the root of the tree.
+	 * @param indicesOfRecordsLeft
+	 * @param remainingColIndices
+	 * @return the root TreeNode of the tree
+	 */
 	public TreeNode build(TreeSet<Integer> indicesOfRecordsLeft, TreeSet<Integer> remainingColIndices){
 		System.out.println("-$$-Tree Building Iteration-$$-");
 		System.out.println("indicesOfRecordsLeft: " + indicesOfRecordsLeft);
@@ -165,7 +221,11 @@ public class DecisionTreeClassifier {
 			}
 		}
 	}
-	
+	/**
+	 * Returns the label with the highest frequency from the records specified by the indices parameter
+	 * @param indicesOfRecordsLeft
+	 * @return majority label
+	 */
 	private String majorityLabel(TreeSet<Integer> indicesOfRecordsLeft) {
 		HashMap<String, Integer> frequencyOfLabels = new HashMap<>();
 		for(Integer indexOfRecord: indicesOfRecordsLeft){
@@ -187,7 +247,10 @@ public class DecisionTreeClassifier {
 		}
 		return maxLabel;
 	}
-
+	/**
+	 * @param indicesOfRecords
+	 * @return True if all of the records have the same class; false otherwise.
+	 */
 	private boolean areRecordsSameClass(TreeSet<Integer> indicesOfRecords){
 		if(indicesOfRecords.size() == 0){
 			return false;
@@ -201,8 +264,12 @@ public class DecisionTreeClassifier {
 		}
 		return true;
 	}
-	
-	
+	/**
+	 * Loads the training data into the Ivars: numberOfRecords, numberOfAttributes, etc.
+	 * Also fills the records Ivar.
+	 * @param fileName
+	 * @throws IOException
+	 */
 	public void loadTrainingData(String fileName) throws IOException {
 		String whitespace = "[ ]+";
 		List<String> lines = Files.readAllLines(Paths.get(fileName),
@@ -241,7 +308,12 @@ public class DecisionTreeClassifier {
 			records.add(recordToAdd);
 		}
 	}// end of loadTrainingData()
-	
+	/**
+	 * 
+	 * @param fileName
+	 * @return An arrayList of the records (label is null)
+	 * @throws IOException
+	 */
 	public ArrayList<Record> loadTestRecordsFromFile(String fileName) throws IOException{
 		String whitespace = "[ ]+";
 		List<String> lines = Files.readAllLines(Paths.get(fileName),
@@ -258,7 +330,12 @@ public class DecisionTreeClassifier {
 		}
 		return testRecords;
 	}
-	
+	/**
+	 * Takes An array of classified records and filename as input and write the classified
+	 * records' labels to an input file specified by the user.
+	 * @param fileName
+	 * @param theRecords
+	 */
 	public void classifyTestRecordsAndWriteToFile(String fileName, ArrayList<Record> theRecords){
 		PrintWriter pw = null;
 		try {
@@ -275,7 +352,11 @@ public class DecisionTreeClassifier {
 		pw.write(sBuffer.toString());
 		pw.close();
 	}
-	
+	/**
+	 * @param indicesOfRecords
+	 * @param remainingColIndices
+	 * @return Returns the column index of the best attribute on which to split the records.
+	 */
 	private Integer bestColIndexToSplitRecords(Set<Integer> indicesOfRecords, Set<Integer> remainingColIndices){
 		if(remainingColIndices.size() == 0 || indicesOfRecords.size() == 0){
 			return null;
@@ -291,15 +372,19 @@ public class DecisionTreeClassifier {
 		}
 		return bestColumnIndex;
 	}
-	
+	/**
+	 * @param indicesOfRecords
+	 * @param colIndex
+	 * @return returns the average weighted entropy
+	 */
 	private double averageWeightedEntropy(Set<Integer> indicesOfRecords, int colIndex){
 		
 		TreeSet<Integer> leftRecords = indicesOfRecordsWithValueAtColumn(indicesOfRecords, 
 				LEFT_RECORDS_BINARY_VALUE, colIndex);
-		HashMap<String, Integer> freqOfBinValuesLeftRecords = frequenciesOfBinaryValues(leftRecords, colIndex);
+		HashMap<String, Integer> freqOfBinValuesLeftRecords = frequenciesOfLabels(leftRecords, colIndex);
 		TreeSet<Integer> rightRecords = indicesOfRecordsWithValueAtColumn(indicesOfRecords, 
 				RIGHT_RECORDS_BINARY_VALUE, colIndex);
-		HashMap<String, Integer> freqOfBinValuesRightRecords = frequenciesOfBinaryValues(rightRecords, colIndex);
+		HashMap<String, Integer> freqOfBinValuesRightRecords = frequenciesOfLabels(rightRecords, colIndex);
 
 		double entropyLeft = gini(freqOfBinValuesLeftRecords, leftRecords.size());
 		double entropyRight = gini(freqOfBinValuesRightRecords, rightRecords.size());
@@ -309,7 +394,14 @@ public class DecisionTreeClassifier {
 		
 		return average;
 	}
-	
+	/**
+	 * Examines all of the records and returns the set of indices where the record
+	 * has the value at that column index
+	 * @param indicesOfRecords
+	 * @param value
+	 * @param colIndex
+	 * @return A TreeSet of indices of records with a value at a column index
+	 */
 	private TreeSet<Integer> indicesOfRecordsWithValueAtColumn(Set<Integer> indicesOfRecords,
 																	int value, int colIndex){
 		TreeSet<Integer> setOfIndicesToReturn = new TreeSet<>();
@@ -321,21 +413,26 @@ public class DecisionTreeClassifier {
 		}
 		return setOfIndicesToReturn;
 	}
-	
-	private HashMap<String, Integer> frequenciesOfBinaryValues(TreeSet<Integer> indicesOfRecords, int colIndex){
-		HashMap<String, Integer> frequencyOfBinaryValues = new HashMap<>();
+	/**
+	 * Calculates the frequency of labels for a specified set of indices of records.
+	 * @param indicesOfRecords
+	 * @param colIndex
+	 * @return A hashmap where the key is a label and the value is its frequency.
+	 */
+	private HashMap<String, Integer> frequenciesOfLabels(TreeSet<Integer> indicesOfRecords, int colIndex){
+		HashMap<String, Integer> frequencyOfLabels = new HashMap<>();
 		for(Integer rowIndex: indicesOfRecords){
 			Record record = records.get(rowIndex);
 			String labelKey = record.label;
-			if(frequencyOfBinaryValues.containsKey(labelKey)){
-				frequencyOfBinaryValues.put(labelKey, frequencyOfBinaryValues.get(labelKey) + 1);
+			if(frequencyOfLabels.containsKey(labelKey)){
+				frequencyOfLabels.put(labelKey, frequencyOfLabels.get(labelKey) + 1);
 			}else{//if the key is not in the hashmap yet
-				frequencyOfBinaryValues.put(labelKey, 1);
+				frequencyOfLabels.put(labelKey, 1);
 			}
 		}
-		return frequencyOfBinaryValues;
+		return frequencyOfLabels;
 	}
-	
+
 	private static double entropy(HashMap<String, Integer> frequencyOfBinaryValues, int size){
 		double entropySoFar = 0.0;
 		for(String binaryKey: frequencyOfBinaryValues.keySet()){
@@ -443,7 +540,12 @@ public class DecisionTreeClassifier {
 		System.out.println("gini: " + gini);
 		System.out.println("class error: " + classError);
 	}
-	
+	/**
+	 * Prints the tree sideways
+	 * @param node
+	 * @param hierarchy
+	 * @return a string description of how the tree looks sideways.
+	 */
 	public String treeString(TreeNode node, int hierarchy){
 		if(node == null){
 			return "";
