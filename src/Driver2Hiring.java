@@ -7,12 +7,13 @@ public class Driver2Hiring {
 		 * Part 2: runing the decision tree algorithm on train 2 and test 2 ****
 		 * #3
 		 */
-		DecisionTreeClassifier dtc = new DecisionTreeClassifier();// start over and make a new decision
-											// tree
+		DecisionTreeClassifier dtc = new DecisionTreeClassifier(
+				DecisionTreeClassifier.GINI);// start over and make a new
+												// decision
+		// tree
 		String trainFileName2 = "train2";
 		String testFileName2 = "test2";
 		String outputFile2 = "output2";
-		dtc = new DecisionTreeClassifier();
 		try {
 			dtc.loadTrainingData(trainFileName2);
 		} catch (Exception e) {

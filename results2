@@ -1,0 +1,29 @@
+William Gillespie
+part 2 results
+trainingError: 0.09523809523809523
+one out error: 0.3333333333333333
+print of tree:
+# Of Attributes: 6
+# Of Classes: 2
+# Of Records: 41
+Type: internal, attribute: 4
+    Type: internal, attribute: 1
+        Type: internal, attribute: 2
+            Type: leaf, label: no
+            Type: internal, attribute: 5
+                Type: leaf, label: no
+                Type: leaf, label: hire
+        Type: internal, attribute: 0
+            Type: leaf, label: hire
+            Type: internal, attribute: 3
+                Type: leaf, label: no
+                Type: leaf, label: hire
+    Type: internal, attribute: 5
+        Type: internal, attribute: 2
+            Type: leaf, label: no
+            Type: leaf, label: no
+        Type: internal, attribute: 1
+            Type: leaf, label: hire
+            Type: internal, attribute: 3
+                Type: leaf, label: no
+                Type: leaf, label: no

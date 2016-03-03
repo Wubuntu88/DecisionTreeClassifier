@@ -10,8 +10,13 @@ public class Driver1 {
 		String trainFileName1 = "train1";
 		String testFileName1 = "test1";
 		String outputFile1 = "output1";
-		DecisionTreeClassifier dtc = new DecisionTreeClassifier();
-
+		DecisionTreeClassifier dtc = new DecisionTreeClassifier(
+				DecisionTreeClassifier.CLASS);
+		// DecisionTreeClassifier dtc = new DecisionTreeClassifier(
+		// DecisionTreeClassifier.SHANNON);
+		// DecisionTreeClassifier dtc = new DecisionTreeClassifier(
+		// DecisionTreeClassifier.GINI);
+		// you can do it for any one of them
 		try {
 			dtc.loadTrainingData(trainFileName1);
 		} catch (Exception exp) {
@@ -19,9 +24,7 @@ public class Driver1 {
 		}
 		/* C: Trace of the tree building */
 		dtc.buildTree();
-		/* A: */
-		// what am I supposed to print...?
-		/* B: prints the tree structure (albeit sideways) */
+		/* A and B: prints the tree structure (albeit sideways) */
 		System.out.println(dtc);
 		/* D: classify test records and write them to a file */
 		ArrayList<Record> testRecords1 = null;
@@ -39,8 +42,8 @@ public class Driver1 {
 		/* F: compute validation random sampling and one out */
 		double oneOutError = dtc.oneOutValidationError();
 		System.out.println("one out error: " + oneOutError);
-		double randomSamplingError = dtc.randomSamplingClassificationError();
-		System.out.println("random sampling error: " + randomSamplingError);
+		// double randomSamplingError = dtc.randomSamplingClassificationError();
+		// System.out.println("random sampling error: " + randomSamplingError);
 
 		/* the rest of part one */
 	}
