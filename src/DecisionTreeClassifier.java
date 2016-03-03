@@ -14,32 +14,6 @@ import java.util.TreeSet;
 
 
 public class DecisionTreeClassifier {
-	
-	private class Record {
-		double[] attrList;
-		String label;
-
-		public Record(double[] attrList, String label) {
-			this.attrList = attrList;
-			this.label = label;
-		}
-		
-		public int numberOfAttributes(){
-			return attrList.length;
-		}
-
-		@Override
-		public String toString() {
-			StringBuffer sBuffer = new StringBuffer("");
-			for (double dub : this.attrList) {
-				sBuffer.append(String.format("%.2f", dub) + ", ");
-			}
-			sBuffer.replace(sBuffer.length() - 2, sBuffer.length(), " || ");
-			sBuffer.append(this.label);
-			return sBuffer.toString();
-		}
-	}//end of Record class
-	
 	private class TreeNode {
 		public static final String INTERNAL = "internal";
 		public static final String LEAF = "leaf";
@@ -63,87 +37,6 @@ public class DecisionTreeClassifier {
 			String contents = nodeType.equals(TreeNode.INTERNAL) ? "attribute: " + attribute : "label: " + labelName;
 			return "Type: " + nodeType + ", " + contents;
 		}
-	}
-	
-	/**************************************************************
-	 * MAIN METHOD
-	 **************************************************************/
-	public static void main(String[] args) {
-		/*
-		 * **PART 1********************************************
-		 * In this part I run the decision tree algorithm on the train1 and test1 data
-		 */
-		String trainFileName1 = "train1";
-		String testFileName1 = "test1";
-		String outputFile1 = "output1";
-		DecisionTreeClassifier dtc = new DecisionTreeClassifier();
-		try {
-			dtc.loadTrainingData(trainFileName1);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		/* C: Trace of the tree building */
-		dtc.buildTree();
-		/* A:  */
-		//what am I supposed to print...?
-		/* B: prints the tree structure (albeit sideways) */
-		System.out.println(dtc);
-		/* D: classify test records and write them to a file */
-		ArrayList<Record> testRecords1 = null;
-		try {
-			testRecords1 = dtc.loadTestRecordsFromFile(testFileName1);
-			dtc.classifyTestRecordsAndWriteToFile(outputFile1, testRecords1);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		/* E: compute and print training error */
-		double trainingError = dtc.computeTrainingError();
-		System.out.println("trainingError: " + trainingError);
-		
-		/* F: compute validation random sampling and one out*/
-		double oneOutError = dtc.oneOutValidationError();
-		System.out.println("one out error: " + oneOutError);
-		double randomSamplingError = dtc.randomSamplingClassificationError();
-		System.out.println("random sampling error: " + randomSamplingError);
-		
-		/*the rest of part one */
-		
-		/* 
-		 * Part 2: runing the decision tree algorithm on train 2 and test 2 ****
-		 * #3
-		 * */
-		dtc = new DecisionTreeClassifier();// start over and make a new decision tree
-		String trainFileName2 = "train2";
-		String testFileName2 = "test2";
-		String outputFile2 = "output2";
-		dtc = new DecisionTreeClassifier();
-		try {
-			dtc.loadTrainingData(trainFileName2);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		dtc.buildTree();
-		/* A: classification of records in test file */
-		ArrayList<Record> testRecords2 = null;
-		try {
-			testRecords2 = dtc.loadTestRecordsFromFile(testFileName2);
-			dtc.classifyTestRecordsAndWriteToFile(outputFile2, testRecords2);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		/* B: compute and print training error */
-		double trainingError2 = dtc.computeTrainingError();
-		System.out.println("trainingError: " + trainingError2);
-		
-		/* C: compute validation random sampling and one out*/
-		double oneOutError2 = dtc.oneOutValidationError();
-		System.out.println("one out error: " + oneOutError2);
-		
-		/* D: tree picture */
-		System.out.println(dtc.toString());
-		
 	}
 	
 	private int numberOfRecords;
